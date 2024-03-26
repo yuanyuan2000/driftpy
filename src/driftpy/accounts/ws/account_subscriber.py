@@ -1,4 +1,5 @@
 import asyncio
+import traceback
 from typing import Optional
 
 from anchorpy import Program
@@ -42,8 +43,16 @@ class WebsocketAccountSubscriber(UserAccountSubscriber, Generic[T]):
         if self.data_and_slot is None:
             await self.fetch()
 
-        self.task = asyncio.create_task(self.subscribe_ws())
+        # self.task = asyncio.create_task(self.subscribe_ws())
+        # 替换原有的异步任务创建逻辑，以定期调用fetch更新数据
+        self.task = asyncio.create_task(self.periodic_fetch())
         return self.task
+
+    async def periodic_fetch(self, interval: int = 3):
+        # 定期调用fetch方法来更新数据
+        while True:
+            await self.fetch()
+            await asyncio.sleep(interval)
 
     def is_subscribed(self):
         return self.task is not None
@@ -80,6 +89,10 @@ class WebsocketAccountSubscriber(UserAccountSubscriber, Generic[T]):
             except websockets.exceptions.ConnectionClosed:
                 print("Websocket closed, reconnecting...")
                 continue
+            except Exception as e:
+                print(f"Unexpected error: {e}")
+                print(traceback.format_exc())
+                continue
 
     async def fetch(self):
         new_data = await get_account_data_and_slot(
@@ -89,10 +102,12 @@ class WebsocketAccountSubscriber(UserAccountSubscriber, Generic[T]):
 
     def update_data(self, new_data: Optional[DataAndSlot[T]]):
         if new_data is None:
+            print(f"The new data is none.")
             return
 
         if self.data_and_slot is None or new_data.slot >= self.data_and_slot.slot:
             self.data_and_slot = new_data
+            # print(f"Updating data_and_slot...")
 
     async def unsubscribe(self):
         if self.task:
