@@ -48,7 +48,7 @@ class WebsocketAccountSubscriber(UserAccountSubscriber, Generic[T]):
         self.task = asyncio.create_task(self.periodic_fetch())
         return self.task
 
-    async def periodic_fetch(self, interval: int = 3):
+    async def periodic_fetch(self, interval: int = 5):
         # 定期调用fetch方法来更新数据
         while True:
             await self.fetch()
