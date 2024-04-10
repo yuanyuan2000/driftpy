@@ -45,10 +45,7 @@ from solders.system_program import ID as SYS_PROGRAM_ID
 
 DEFAULT_USER_NAME = "Main Account"
 
-# DEFAULT_TX_OPTIONS = TxOpts(skip_confirmation=False, preflight_commitment=Processed) 修改为True跳过预检查
-DEFAULT_TX_OPTIONS = TxOpts(skip_confirmation=True, preflight_commitment=Processed)
-
-
+DEFAULT_TX_OPTIONS = TxOpts(skip_confirmation=False, preflight_commitment=Processed)
 class DriftClient:
     """This class is the main way to interact with Drift Protocol including
     depositing, opening new positions, closing positions, placing orders, etc.
